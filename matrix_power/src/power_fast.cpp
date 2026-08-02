@@ -3,7 +3,7 @@
 
 using Matrix = std::vector<std::vector<double>>;
 
-// identitate n×n
+// n×n identity matrix
 Matrix identity(int n) {
     Matrix I(n, std::vector<double>(n, 0.0));
     for (int i = 0; i < n; i++)
@@ -11,7 +11,7 @@ Matrix identity(int n) {
     return I;
 }
 
-// înmulțire clasică
+// standard matrix multiplication
 Matrix mul(const Matrix &A, const Matrix &B) {
     int n = A.size();
     Matrix C(n, std::vector<double>(n, 0.0));
@@ -22,16 +22,16 @@ Matrix mul(const Matrix &A, const Matrix &B) {
     return C;
 }
 
-// exponentiere rapidă iterativă
+// iterative fast exponentiation
 Matrix power_fast(const Matrix &A, int p) {
     int n = A.size();
     Matrix R = identity(n);
     Matrix X = A;
     while (p > 0) {
-        if (p & 1)        // bit-ul cel mai puțin semnificativ e 1?
+        if (p & 1)       
             R = mul(R, X);
         X = mul(X, X);
-        p >>= 1;          // shift dreapta
+        p >>= 1;          // right shift
     }
     return R;
 }
