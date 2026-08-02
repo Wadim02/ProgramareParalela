@@ -3,16 +3,16 @@
 #include <algorithm>
 
 using Matrix = std::vector<std::vector<double>>;
-const int THRESHOLD = 64;  // pragul de trecere la înmulțirea clasică
+const int THRESHOLD = 64;  // threshold to switch to standard multiplication
 
-// 1) utilitare: creare identitate
+// 1) Utilities: identity matrix creation
 Matrix identity(int n) {
     Matrix I(n, std::vector<double>(n, 0.0));
     for (int i = 0; i < n; i++) I[i][i] = 1.0;
     return I;
 }
 
-// 2) adunare și scădere de matrici
+// 2) Matrix addition and subtraction
 Matrix add(const Matrix &A, const Matrix &B) {
     int n = A.size();
     Matrix C(n, std::vector<double>(n));
@@ -30,7 +30,7 @@ Matrix sub(const Matrix &A, const Matrix &B) {
     return C;
 }
 
-// 3) înmulțire clasică (caz de bază)
+// 3) Standard matrix multiplication (base case)
 Matrix classicalMul(const Matrix &A, const Matrix &B) {
     int n = A.size();
     Matrix C(n, std::vector<double>(n, 0.0));
@@ -41,14 +41,14 @@ Matrix classicalMul(const Matrix &A, const Matrix &B) {
     return C;
 }
 
-// 4) Strassen recursiv
+// 4) Recursive Strassen multiplication
 Matrix strassenMul(const Matrix &A, const Matrix &B, int threshold) {
     int n = A.size();
     if (n <= threshold) {
         return classicalMul(A, B);
     }
     int m = n/2;
-    // inițializare submatrici
+    // Submatrices initialization
     Matrix A11(m, std::vector<double>(m)), A12(m, std::vector<double>(m)),
            A21(m, std::vector<double>(m)), A22(m, std::vector<double>(m)),
            B11 = A11, B12 = A12, B21 = A21, B22 = A22;
@@ -64,7 +64,7 @@ Matrix strassenMul(const Matrix &A, const Matrix &B, int threshold) {
         B22[i][j] = B[i + m][j + m];
       }
     }
-    // cele 7 produse Strassen
+    // The 7 Strassen products
     Matrix M1 = strassenMul(add(A11, A22), add(B11, B22), threshold);
     Matrix M2 = strassenMul(add(A21, A22), B11, threshold);
     Matrix M3 = strassenMul(A11, sub(B12, B22), threshold);
@@ -73,7 +73,7 @@ Matrix strassenMul(const Matrix &A, const Matrix &B, int threshold) {
     Matrix M6 = strassenMul(sub(A21, A11), add(B11, B12), threshold);
     Matrix M7 = strassenMul(sub(A12, A22), add(B21, B22), threshold);
 
-    // reconstruiește C din M1..M7
+    // Reconstruct C from M1..M7
     Matrix C(n, std::vector<double>(n));
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < m; j++) {
@@ -86,7 +86,7 @@ Matrix strassenMul(const Matrix &A, const Matrix &B, int threshold) {
     return C;
 }
 
-// 5) exponentiere rapidă folosind Strassen la înmulțiri
+// 5) Fast exponentiation using Strassen multiplication
 Matrix power_strassen(const Matrix &A, int p) {
     int n = A.size();
     Matrix R = identity(n), X = A;
