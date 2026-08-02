@@ -2,12 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <algorithm>   // pentru std::min
+#include <algorithm> 
 
 using Real   = double;
-using Matrix = std::vector<Real>;  // stocăm matricea n×n într-un vector plat
+using Matrix = std::vector<Real>;  // store the n×n matrix in a flat vector
 
-// --- utilitare MPI pentru distribuţia liniilor ---
+// --- MPI utilities for row distribution ---
 void parallelMatMul(const Matrix &A, const Matrix &B, Matrix &C,
                     int n, int rank, int size) {
     int base = n / size;
@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
     const char* filename = argv[1];
 
     int n, p;
-    Matrix A;   // citită doar de rank 0
+    Matrix A;   // read only by rank 0
 
     if (rank == 0) {
         std::ifstream fin(filename);
@@ -82,18 +82,18 @@ int main(int argc, char** argv) {
             fin >> A[i];
     }
 
-    // distribuie n și p la toți
+    // broadcast n and p to all processes
     MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast(&p, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    // pregătește buffer pentru A și îl bcast
+    // prepare buffer for A and broadcast it
     if (rank != 0) A.resize(n*n);
     MPI_Bcast(A.data(), n*n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     Matrix X = A;
     Matrix R = makeIdentity(n);
 
-    // exponentiere rapidă cu înmulțiri MPI
+    // fast exponentiation with MPI multiplications
     while (p > 0) {
         if (p & 1) parallelMatMul(R, X, R, n, rank, size);
         parallelMatMul(X, X, X, n, rank, size);
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
     }
 
     if (rank == 0) {
-        // afișează rezultatul
+        // print result
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
                 std::cout << R[i*n + j] << ' ';
