@@ -20,3 +20,4 @@ for n, p in configs:
     fname = f"input_{n}_{p}.txt"
     print(f"Generating {fname} …")
     gen(n, p, fname)
+    
