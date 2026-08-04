@@ -9,7 +9,7 @@ procs=(1 2 4 8)
 
 echo "method,n,p,procs,time_s" > results.csv
 
-# 1) Metodele seriale (uses stdin)
+# 1) Serial methods (uses stdin)
 for method in "${bins[@]}"; do
   for n in "${ns[@]}"; do
     for p in "${ps[@]}"; do
@@ -24,7 +24,7 @@ for method in "${bins[@]}"; do
   done
 done
 
-# 2) Metoda MPI, fără stdin-redir; fișierul e argument
+# 2) MPI method (no stdin redirection; input file is passed as argument)
 for n in "${ns[@]}"; do
   for p in "${ps[@]}"; do
     infile="../data/input_${n}_${p}.txt"
